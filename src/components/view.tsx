@@ -14,7 +14,7 @@ import {
   MergeViewOptions,
   MergeViewProvider,
   MergeViewResult
-} from 'lc_notebook_diff_components';
+} from '../lc_notebook_diff_components';
 import { NotebookPath } from './select-files';
 
 export type Notebook = {

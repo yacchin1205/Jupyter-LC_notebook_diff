@@ -66,7 +66,12 @@ function MainWidget({ documents }: MainWidgetProps) {
     <ThemeProvider theme={theme}>
       <Box>
         <SelectFiles numberOfFiles={3} onFilesSelected={filesChanged} />
-        <Button fullWidth variant="contained" onClick={showDiff}>
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={showDiff}
+          className="jupyter-notebook-diff-show-diff"
+        >
           Show Diff
         </Button>
         {notebooks && notebooks.length > 0 && (

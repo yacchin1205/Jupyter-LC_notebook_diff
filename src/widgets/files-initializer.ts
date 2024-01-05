@@ -11,7 +11,6 @@ export class FilesInitializer {
   }
 
   start(app: JupyterFrontEnd) {
-    app.shell.add(this.widgetFactory(false), 'left', { rank: 2000 });
     this.addToMain(app);
   }
 
@@ -26,8 +25,10 @@ export class FilesInitializer {
     const tab = widgets[0] as TabPanel;
     if (!tab.addWidget) {
       console.log('lc_notebook_diff: running on JupyterLab');
+      app.shell.add(this.widgetFactory(false), 'left', { rank: 2000 });
       return;
     }
+    console.log('lc_notebook_diff: running on Jupyter Notebook 7');
     tab.addWidget(this.widgetFactory(true));
   }
 }
