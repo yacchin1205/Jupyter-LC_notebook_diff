@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.2.4
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: yazawa@yzwlab.net
+author_name: nii-cloud-operation
+data_format: string
+file_extension: ''
+has_binder: false
+has_settings: false
+kind: frontend
+labextension_name: lc_notebook_diff
+mimetype: ''
+mimetype_name: ''
+project_short_description: diff extension
+python_name: lc_notebook_diff
+repository: https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
+test: true
+viewer_name: ''
+

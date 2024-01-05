@@ -1,2 +1,1 @@
-include html/*
-include nbextension/lc_notebook_diff/nbextension/*
+include lc_notebook_diff/nbextension/*
