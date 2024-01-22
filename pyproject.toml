@@ -38,6 +38,12 @@ fields = ["description", "authors", "urls"]
 [tool.hatch.build.targets.wheel.force-include]
 "lc_notebook_diff/nbextension/diff_match_patch.js" = "lc_notebook_diff/nbextension/diff_match_patch.js"
 "lc_notebook_diff/nbextension/jupyter-notebook-diff.js" = "lc_notebook_diff/nbextension/jupyter-notebook-diff.js"
+"components/src" = "src/lc_notebook_diff_components"
+
+[tool.hatch.build.targets.sdist.force-include]
+"lc_notebook_diff/nbextension/diff_match_patch.js" = "lc_notebook_diff/nbextension/diff_match_patch.js"
+"lc_notebook_diff/nbextension/jupyter-notebook-diff.js" = "lc_notebook_diff/nbextension/jupyter-notebook-diff.js"
+"components/src" = "src/lc_notebook_diff_components"
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["lc_notebook_diff/labextension"]
