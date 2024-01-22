@@ -4,7 +4,7 @@
   "description": "nbextension for lc_notebook_diff",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && esbuild src/index.ts --bundle --outfile=../lc_notebook_diff/nbextension/jupyter-notebook-diff.js --sourcemap --target=es2016 --platform=browser --format=cjs && curl -L https://github.com/google/diff-match-patch/raw/master/javascript/diff_match_patch.js > ../nbextension/diff_match_patch.js",
+    "build": "tsc && esbuild src/index.ts --bundle --outfile=../lc_notebook_diff/nbextension/jupyter-notebook-diff.js --sourcemap --target=es2016 --platform=browser --format=cjs && curl -L https://github.com/google/diff-match-patch/raw/master/javascript/diff_match_patch.js > ../lc_notebook_diff/diff_match_patch.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
