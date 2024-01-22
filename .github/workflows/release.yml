@@ -50,6 +50,9 @@ jobs:
         set -eux
         jlpm
         jlpm run eslint:check
+        cd ./lc_notebook_diff/labextension
+        npm run build
+        cd ../..
         python -m pip install .
 
         jupyter labextension list 2>&1 | grep -ie "lc_notebook_diff.*OK"
