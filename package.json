@@ -52,7 +52,8 @@
         "test": "jest --coverage",
         "watch": "run-p watch:src watch:labextension",
         "watch:src": "tsc -w --sourceMap",
-        "watch:labextension": "jupyter labextension watch ."
+        "watch:labextension": "jupyter labextension watch .",
+        "prepare": "curl -L https://github.com/google/diff-match-patch/raw/master/javascript/diff_match_patch.js > lc_notebook_diff/nbextension/diff_match_patch.js"
     },
     "dependencies": {
         "@emotion/react": "^11.11.3",
