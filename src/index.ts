@@ -7,7 +7,7 @@ import diff from 'diff-match-patch';
 
 import { FilesInitializer } from './widgets/files-initializer';
 import { buildWidget } from './widgets/main';
-import { DiffView } from 'lc_notebook_diff_components';
+import { DiffView } from './lc_notebook_diff_components';
 
 Object.keys(diff).forEach(key => {
   (window as any)[key] = (diff as any)[key];

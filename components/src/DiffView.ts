@@ -1,406 +1,403 @@
-import { Notebook } from "./Notebook";
-import { Cell } from "./Cell";
-import { Relation, RelationMatchType } from "./Relation";
+import { Notebook } from './Notebook';
+import { Cell } from './Cell';
+import { Relation, RelationMatchType } from './Relation';
 
 export type MergeViewResult = {
-	edit: {
-		focus: () => void;
-	};
+  edit: {
+    focus: () => void;
+  };
 };
 
 export type MergeViewOptions = {
-	value: string | undefined;
-	origLeft: string | undefined;
-	origRight: string | undefined;
-	lineNumbers: boolean;
-	mode: string;
-	highlightDifferences: boolean;
-	collapseIdentical: boolean;
-	readOnly: boolean;
-	extraKeys: {
-		Esc: () => void;
-	};
+  value: string | undefined;
+  origLeft: string | undefined;
+  origRight: string | undefined;
+  lineNumbers: boolean;
+  mode: string;
+  highlightDifferences: boolean;
+  collapseIdentical: boolean;
+  readOnly: boolean;
+  extraKeys: {
+    Esc: () => void;
+  };
 };
 
 export type MergeViewProvider = {
-	MergeView: (element: HTMLElement, options: MergeViewOptions) => MergeViewResult;
+  MergeView: (
+    element: HTMLElement,
+    options: MergeViewOptions
+  ) => MergeViewResult;
 };
 
 export class DiffView {
-	$: JQueryStatic;
+  $: JQueryStatic;
 
-	/** セレクタ */
-	rootSelector: string;
+  /** セレクタ */
+  rootSelector: string;
 
-	codeMirror: MergeViewProvider;
+  codeMirror: MergeViewProvider;
 
-	/** コンテナ */
-	$container: JQuery;
+  /** コンテナ */
+  $container: JQuery;
 
-	/** マージするためのビュー */
-	$mergeView: JQuery;
+  /** マージするためのビュー */
+  $mergeView: JQuery;
 
-	/** ファイル名の配列 */
-	loadingFilenames: string[];
+  /** ファイル名の配列 */
+  loadingFilenames: string[];
 
-	/** ファイルデータの配列 */
-	loadingFilecontents: any[];
+  /** ファイルデータの配列 */
+  loadingFilecontents: any[];
 
-	/** ロードされたノートブック */
-	notebooks: Notebook[];
+  /** ロードされたノートブック */
+  notebooks: Notebook[];
 
-	/** リレーション */
-	relations: Relation[];
+  /** リレーション */
+  relations: Relation[];
 
-	/** マッチタイプ */
-	matchType: RelationMatchType;
+  /** マッチタイプ */
+  matchType: RelationMatchType;
 
-	/** 初期化 */
-	constructor($: JQueryStatic, rootSelector: string, codeMirror: MergeViewProvider, filenames: string[],
-				filecontents: any[],
-				errorCallback?: (url: string, jqXHR: any, textStatus: string, errorThrown: any) => void,
-				{matchType = RelationMatchType.Fuzzy}: { matchType?: RelationMatchType } = {}) {
-		this.$ = $;
-		this.rootSelector = rootSelector;
-		this.codeMirror = codeMirror;
-		this.$container = $(this.rootSelector);
-		this.$mergeView = $('<div class="merge-view"></div>');
-		this.loadingFilenames = filenames;
-		this.loadingFilecontents = filecontents;
-		this.notebooks = [];
-		this.relations = [];
-		this.matchType = matchType;
-		this.loadNext(errorCallback !== undefined ? errorCallback : url => {
-			console.error('Failed to load content', url);
-		});
-	}
+  /** 初期化 */
+  constructor(
+    $: JQueryStatic,
+    rootSelector: string,
+    codeMirror: MergeViewProvider,
+    filenames: string[],
+    filecontents: any[],
+    errorCallback?: (
+      url: string,
+      jqXHR: any,
+      textStatus: string,
+      errorThrown: any
+    ) => void,
+    {
+      matchType = RelationMatchType.Fuzzy
+    }: { matchType?: RelationMatchType } = {}
+  ) {
+    this.$ = $;
+    this.rootSelector = rootSelector;
+    this.codeMirror = codeMirror;
+    this.$container = $(this.rootSelector);
+    this.$mergeView = $('<div class="merge-view"></div>');
+    this.loadingFilenames = filenames;
+    this.loadingFilecontents = filecontents;
+    this.notebooks = [];
+    this.relations = [];
+    this.matchType = matchType;
+    this.loadNext(
+      errorCallback !== undefined
+        ? errorCallback
+        : url => {
+            console.error('Failed to load content', url);
+          }
+    );
+  }
 
-	/** 次のNotebookをロードする */
-	private loadNext(errorCallback: (url: string, jqXHR: any, textStatus: string, errorThrown: any) => void): void {
-		console.log('loadNext', this.loadingFilenames);
-		if (this.loadingFilenames.length == 0) {
-			// 描画
-			this.render();
-		} else {
-			// ロード
-			let rawFilename = this.loadingFilenames.shift() as string;
-			if (this.loadingFilecontents.length == 0) {
-				let filename = encodeURI(rawFilename);
-				this.$.getJSON(filename, data => {
-						this.notebooks.push(new Notebook(this.$, rawFilename, data));
-								if (this.notebooks.length >= 2) {
-									let i = this.notebooks.length - 2;
-									this.relations.push(new Relation(
-										this.$,
-										this.notebooks[i],
-										this.notebooks[i + 1],
-										{matchType: this.matchType}
-									));
-								}
-								this.loadNext(errorCallback);
-				}).fail((jqXHR, textStatus, errorThrown) => {
-					errorCallback(filename, jqXHR, textStatus, errorThrown);
-				});
-			} else {
-				var data = this.loadingFilecontents.shift();
-				this.notebooks.push(new Notebook(this.$, rawFilename, data));
-				if (this.notebooks.length >= 2) {
-					let i = this.notebooks.length - 2;
-					this.relations.push(new Relation(
-						this.$,
-						this.notebooks[i],
-						this.notebooks[i + 1],
-						{matchType: this.matchType}
-					));
-				}
-				this.loadNext(errorCallback);
-			}
-		}
-	}
+  /** 次のNotebookをロードする */
+  private loadNext(
+    errorCallback: (
+      url: string,
+      jqXHR: any,
+      textStatus: string,
+      errorThrown: any
+    ) => void
+  ): void {
+    console.log('loadNext', this.loadingFilenames);
+    if (this.loadingFilenames.length == 0) {
+      // 描画
+      this.render();
+    } else {
+      // ロード
+      let rawFilename = this.loadingFilenames.shift() as string;
+      if (this.loadingFilecontents.length == 0) {
+        let filename = encodeURI(rawFilename);
+        this.$.getJSON(filename, data => {
+          this.notebooks.push(new Notebook(this.$, rawFilename, data));
+          if (this.notebooks.length >= 2) {
+            let i = this.notebooks.length - 2;
+            this.relations.push(
+              new Relation(this.$, this.notebooks[i], this.notebooks[i + 1], {
+                matchType: this.matchType
+              })
+            );
+          }
+          this.loadNext(errorCallback);
+        }).fail((jqXHR, textStatus, errorThrown) => {
+          errorCallback(filename, jqXHR, textStatus, errorThrown);
+        });
+      } else {
+        var data = this.loadingFilecontents.shift();
+        this.notebooks.push(new Notebook(this.$, rawFilename, data));
+        if (this.notebooks.length >= 2) {
+          let i = this.notebooks.length - 2;
+          this.relations.push(
+            new Relation(this.$, this.notebooks[i], this.notebooks[i + 1], {
+              matchType: this.matchType
+            })
+          );
+        }
+        this.loadNext(errorCallback);
+      }
+    }
+  }
 
-	/**
-	 * セルのJQueryオブジェクトを取得する。
-	 */
-	private getCellDom(notebookMeme: string, cellMeme: string): JQuery {
-		return this.$container.find('.notebook[data-meme="' + notebookMeme + '"] > .cell[data-meme="' + cellMeme + '"]');
-	}
+  /** セルをハイライトする */
+  private highlightCell(cellId: string | null): void {
+    this.$container.find('.cell').removeClass('highlight');
+    if (cellId != null) {
+      this.$container.find(`.cell[data-id="${cellId}"]`).addClass('highlight');
+      for (const cell of this.getRelatedCellsById(cellId)) {
+        this.$container
+          .find(`.cell[data-id="${cell.id}"]`)
+          .addClass('highlight');
+      }
+    }
+  }
 
-	/**
-	 * セルが表示されている矩形を取得する。
-	 */
-	private getCellY(notebookMeme: string, cellMeme: string): number {
-		let offset = this.getCellDom(notebookMeme, cellMeme).offset();
-		return offset == undefined ? NaN : offset.top;
-	}
+  /** リレーションを更新する */
+  private updateRelationsView(): void {
+    for (let relation of this.relations) {
+      relation.updateView();
+    }
+  }
 
-	/** セルをハイライトする */
-	private highlightCell(cellId: string | null): void {
-		this.$container.find('.cell').removeClass('highlight');
-		if (cellId != null) {
-			this.$container.find(`.cell[data-id="${cellId}"]`).addClass('highlight');
-			for (const cell of this.getRelatedCellsById(cellId)) {
-				this.$container.find(`.cell[data-id="${cell.id}"]`).addClass('highlight');
-			}
-		}
-	}
+  /** リレーションを計算する */
+  private updateRelations(): void {
+    for (let relation of this.relations) {
+      relation.updateRelation();
+    }
+  }
 
-	/** リレーションを更新する */
-	private updateRelationsView(): void {
-		for (let relation of this.relations) {
-			relation.updateView();
-		}
-	}
+  /** マージビューを表示する */
+  private showMergeView(cellId: string | undefined): void {
+    if (cellId == undefined) {
+      throw new Error('cellId is undefined');
+    }
+    let mergeViewElem = this.$mergeView[0];
+    let notebooks: Array<Notebook | null> = [];
+    if (this.notebooks.length == 2) {
+      notebooks = [null, this.notebooks[0], this.notebooks[1]];
+    } else {
+      notebooks = this.notebooks;
+    }
 
-	/** リレーションを計算する */
-	private updateRelations(): void {
-		for (let relation of this.relations) {
-			relation.updateRelation();
-		}
-	}
+    const relatedCells = this.getRelatedCellsById(cellId);
+    const targetCell = this.cellById(cellId) as Cell;
+    const sources: Array<string | undefined> = [
+      undefined,
+      undefined,
+      undefined
+    ];
+    for (let i = 0; i < 3; i++) {
+      if (!notebooks[i]) continue;
+      const notebook = notebooks[i] as Notebook;
+      if (notebook === targetCell.notebook) {
+        sources[i] = targetCell.sourceAll;
+      } else {
+        const cell = relatedCells
+          .filter(cell => notebook.cellList.indexOf(cell) !== -1)
+          .shift();
+        if (!cell) continue;
+        sources[i] = cell.sourceAll;
+      }
+    }
 
-	private getSourceByMeme(meme: string, notebook: Notebook | null): string | null {
-		if (notebook == null) {
-			return null;
-		} else {
-			let cell = notebook.getCellByMeme(meme);
-			return cell == null ? null : cell.sourceAll;
-		}
-	}
+    let self = this;
+    let options = {
+      value: sources[1],
+      origLeft: sources[0],
+      origRight: sources[2],
+      lineNumbers: true,
+      mode: 'text/html',
+      highlightDifferences: true,
+      collapseIdentical: false,
+      readOnly: true,
+      extraKeys: {
+        Esc: function () {
+          self.hideMergeView();
+        }
+      }
+    };
+    this.$mergeView.show();
+    this.$container.find('.dark').show();
+    let mv = this.codeMirror.MergeView(mergeViewElem, options);
+    mv.edit.focus();
+  }
 
-	/** マージビューを表示する */
-	private showMergeView(cellId: string | undefined): void {
-		if (cellId == undefined) {
-			throw new Error('cellId is undefined');
-		}
-		let mergeViewElem = this.$mergeView[0];
-		let notebooks: Array<Notebook | null> = [];
-		if (this.notebooks.length == 2) {
-			notebooks = [null, this.notebooks[0], this.notebooks[1]];
-		} else {
-			notebooks = this.notebooks;
-		}
+  /** マージビューを閉じる */
+  private hideMergeView(): void {
+    this.$mergeView.empty();
+    this.$mergeView.hide();
+    this.$container.find('.dark').hide();
+  }
 
-		const relatedCells = this.getRelatedCellsById(cellId);
-		const targetCell = this.cellById(cellId) as Cell;
-		const sources: Array<string | undefined> = [undefined, undefined, undefined];
-		for (let i = 0; i < 3; i++) {
-			if (!notebooks[i]) continue;
-			const notebook = notebooks[i] as Notebook;
-			if (notebook === targetCell.notebook) {
-				sources[i] = targetCell.sourceAll;
-			} else {
-				const cell = relatedCells.filter(cell => notebook.cellList.indexOf(cell) !== -1).shift();
-				if (!cell) continue;
-				sources[i] = cell.sourceAll;
-			}
-		}
+  /** 選択中の揃えるべきY座標を求める */
+  private maxCellY(): number {
+    let y: number = 0;
+    for (let notebook of this.notebooks) {
+      let cell = notebook.selectedCell();
+      if (cell != null) {
+        y = Math.max(y, cell.y);
+      }
+    }
+    return y;
+  }
 
-		let self = this;
-		let options = {
-			value: sources[1],
-			origLeft: sources[0],
-			origRight: sources[2],
-			lineNumbers: true,
-			mode: "text/html",
-			highlightDifferences: true,
-			collapseIdentical: false,
-			readOnly: true,
-			extraKeys: {
-				Esc: function(){
-					self.hideMergeView();
-				}
-			}
-		};
-		this.$mergeView.show();
-		this.$container.find('.dark').show();
-		let mv = this.codeMirror.MergeView(mergeViewElem, options);
-		mv.edit.focus();
-	}
+  /** セルの揃えをリセットする */
+  private resetCellY() {
+    this.$container.find('.cell').css('margin-top', 5);
+  }
 
-	/** マージビューを閉じる */
-	private hideMergeView(): void {
-		this.$mergeView.empty();
-		this.$mergeView.hide();
-		this.$container.find('.dark').hide();
-	}
+  /** 指定したセルを揃える */
+  private alignCellY(y: number) {
+    for (let notebook of this.notebooks) {
+      let cell = notebook.selectedCell();
+      if (cell != null) {
+        cell.y = y;
+      }
+    }
+  }
 
-	/** 選択中の揃えるべきY座標を求める */
-	private maxCellY(): number {
-		let y: number = 0;
-		for (let notebook of this.notebooks) {
-			let cell = notebook.selectedCell();
-			if (cell != null) {
-				y = Math.max(y, cell.y);
-			}
-		}
-		return y;
-	}
+  /** セルを揃える */
+  private alignSelected(): void {
+    this.resetCellY();
+    this.alignCellY(this.maxCellY());
+  }
 
-	/** セルの揃えをリセットする */
-	private resetCellY() {
-		this.$container.find('.cell').css('margin-top', 5);
-	}
+  /** idからセルを検索する */
+  private cellById(id: string | undefined): Cell | null {
+    if (id === undefined) {
+      return null;
+    }
+    for (let notebook of this.notebooks) {
+      for (let cell of notebook.cellList) {
+        if (cell.id == id) {
+          return cell;
+        }
+      }
+    }
+    return null;
+  }
 
-	/** 指定したセルを揃える */
-	private alignCellY(y: number) {
-		for (let notebook of this.notebooks) {
-			let cell = notebook.selectedCell();
-			if (cell != null) {
-				cell.y = y;
-			}
-		}
-	}
+  /** セルを選択する */
+  private select(cell: Cell): void {
+    for (let notebook of this.notebooks) {
+      notebook.unselectAll();
+      notebook.unmarkAll();
+    }
 
-	/** セルを揃える */
-	private alignSelected(): void {
-		this.resetCellY();
-		this.alignCellY(this.maxCellY());
-	}
+    cell.select(true);
+    cell.mark(true);
+    for (const relatedCell of this.getRelatedCellsById(cell.id)) {
+      relatedCell.select(true);
+      relatedCell.mark(true);
+    }
+  }
 
-	/** スクロール位置を調節 */
-	private moveScrollY(deltaScrollY: number): void {
-		window.scroll(window.scrollX, window.screenY + deltaScrollY);
-	}
+  /** 描画を行う */
+  private render(): void {
+    this.updateRelations();
 
-	/** idからセルを検索する */
-	private cellById(id: string | undefined): Cell | null {
-		if (id === undefined) {
-			return null;
-		}
-		for (let notebook of this.notebooks) {
-			for (let cell of notebook.cellList) {
-				if (cell.id == id) {
-					return cell;
-				}
-			}
-		}
-		return null;
-	}
+    // HTMLを生成する
+    let $wrapper = this.$('<div class="wrapper"></div>');
+    this.$container.empty();
+    this.$container.append($wrapper);
+    for (let i = 0; i < this.notebooks.length; i++) {
+      $wrapper.append(this.notebooks[i].$view);
+      if (i != this.notebooks.length - 1) {
+        $wrapper.append(this.relations[i].$view);
+      }
+    }
+    this.$container.append('<div class="dark"></div>');
+    this.$container.append(this.$mergeView);
 
-	/** memeを指定してマークする */
-	private markByMeme(meme: string): void {
-		for (let notebook of this.notebooks) {
-			notebook.markByMeme(meme);
-		}
-	}
+    // イベントを設定する
+    this.$container.on('click', '.open-button', e => {
+      this.$(e.target).parent().parent().removeClass('closed');
+      this.resetCellY();
+      this.updateRelationsView();
+      return false;
+    });
+    this.$container.on('click', '.close-button', e => {
+      this.$(e.target).parent().parent().addClass('closed');
+      this.resetCellY();
+      this.updateRelationsView();
+      return false;
+    });
+    this.$container.on('click', '.select-button', e => {
+      let $cell = this.$(e.target).parent().parent();
+      let cell = this.cellById($cell.attr('data-id'));
+      if (cell != null) {
+        this.select(cell);
+        this.alignSelected();
+      }
+      return false;
+    });
+    this.$container.on('click', '.cell', e => {
+      this.showMergeView(this.$(e.currentTarget).attr('data-id'));
+    });
+    this.$container.on('mouseenter', '.cell', e => {
+      this.highlightCell(this.$(e.currentTarget).attr('data-id') || null);
+    });
+    this.$container.on('mouseleave', '.cell', e => {
+      this.highlightCell(null);
+    });
+    this.$container.on('click', '.dark', e => {
+      this.hideMergeView();
+    });
 
-	/** セルを選択する */
-	private select(cell: Cell): void {
-		for (let notebook of this.notebooks) {
-			notebook.unselectAll();
-			notebook.unmarkAll();
-		}
+    if (this.notebooks.length == 2) {
+      this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));
+    } else {
+      this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));
+      this.updateCellsStyle(this.notebooks[2], this.relations.slice(0, 2));
+    }
 
-		cell.select(true);
-		cell.mark(true);
-		for (const relatedCell of this.getRelatedCellsById(cell.id)) {
-			relatedCell.select(true);
-			relatedCell.mark(true);
-		}
-	}
+    setInterval(() => {
+      this.updateRelationsView();
+    });
+  }
 
-	/** 描画を行う */
-	private render(): void {
-		this.updateRelations();
+  /** 指定したNotebook内のすべてのCellのスタイルを更新する */
+  private updateCellsStyle(notebook: Notebook, relations: Relation[]): void {
+    relations.reverse();
+    for (const cell of notebook.cellList) {
+      const leftCellsList: Cell[][] = [];
+      let rightCells: Cell[] = [cell];
+      for (const relation of relations) {
+        const leftCells: Cell[] = [];
+        for (const rightCell of rightCells) {
+          for (const leftCell of relation.relatedLeftCells[rightCell.id] ||
+            []) {
+            leftCells.push(leftCell);
+          }
+        }
+        leftCellsList.push(leftCells);
+        rightCells = leftCells;
+      }
+      cell.updateStyle(leftCellsList.reverse());
+    }
+  }
 
-		// HTMLを生成する
-		let $wrapper = this.$('<div class="wrapper"></div>');
-		this.$container.empty();
-		this.$container.append($wrapper);
-		for (let i = 0; i < this.notebooks.length; i++) {
-			$wrapper.append(this.notebooks[i].$view);
-			if (i != this.notebooks.length - 1) {
-				$wrapper.append(this.relations[i].$view);
-			}
-		}
-		this.$container.append('<div class="dark"></div>');
-		this.$container.append(this.$mergeView);
-
-		// イベントを設定する
-		this.$container.on('click', '.open-button', (e) => {
-			this.$(e.target).parent().parent().removeClass('closed');
-			this.resetCellY();
-			this.updateRelationsView();
-			return false;
-		});
-		this.$container.on('click', '.close-button', (e) => {
-			this.$(e.target).parent().parent().addClass('closed');
-			this.resetCellY();
-			this.updateRelationsView();
-			return false;
-		});
-		this.$container.on('click', '.select-button', (e) => {
-			let $cell = this.$(e.target).parent().parent();
-			let cell = this.cellById($cell.attr('data-id'));
-			if (cell != null) {
-				this.select(cell);
-				this.alignSelected();
-			}
-			return false;
-		});
-		this.$container.on('click', '.cell', (e) => {
-			this.showMergeView(this.$(e.currentTarget).attr('data-id'));
-		});
-		this.$container.on('mouseenter', '.cell', (e) => {
-			this.highlightCell(this.$(e.currentTarget).attr('data-id') || null);
-		});
-		this.$container.on('mouseleave', '.cell', (e) => {
-			this.highlightCell(null);
-		});
-		this.$container.on('click', '.dark', (e) => {
-			this.hideMergeView();
-		});
-
-		if (this.notebooks.length == 2) {
-			this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));
-		} else {
-			this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));
-			this.updateCellsStyle(this.notebooks[2], this.relations.slice(0, 2));
-		}
-
-		setInterval(() => {
-			this.updateRelationsView();
-		});
-	}
-
-	/** 指定したNotebook内のすべてのCellのスタイルを更新する */
-	private updateCellsStyle(notebook: Notebook, relations: Relation[]): void {
-		relations.reverse();
-		for (const cell of notebook.cellList) {
-			const leftCellsList: Cell[][] = [];
-			let rightCells: Cell[] = [cell];
-			for (const relation of relations) {
-				const leftCells: Cell[] = [];
-				for (const rightCell of rightCells) {
-					for (const leftCell of relation.relatedLeftCells[rightCell.id] || []) {
-						leftCells.push(leftCell);
-					}
-				}
-				leftCellsList.push(leftCells);
-				rightCells = leftCells;
-			}
-			cell.updateStyle(leftCellsList.reverse());
-		}
-	}
-
-	/** 指定したCellに関連するCellを関連度順にすべて取得する */
-	private getRelatedCellsById(cellId: string): Cell[] {
-		const queue: string[] = [cellId];
-		const related: Cell[] = [];
-		const used: { [key: string]: boolean } = {};
-		used[cellId] = true;
-		while (queue.length) {
-			const current = queue.shift() as string;
-			for (const relation of this.relations) {
-				for (const cell of relation.getRelatedCells(current)) {
-					if (!used[cell.id]) {
-						used[cell.id] = true;
-						related.push(cell);
-						queue.push(cell.id);
-					}
-				}
-			}
-		}
-		return related;
-	}
+  /** 指定したCellに関連するCellを関連度順にすべて取得する */
+  private getRelatedCellsById(cellId: string): Cell[] {
+    const queue: string[] = [cellId];
+    const related: Cell[] = [];
+    const used: { [key: string]: boolean } = {};
+    used[cellId] = true;
+    while (queue.length) {
+      const current = queue.shift() as string;
+      for (const relation of this.relations) {
+        for (const cell of relation.getRelatedCells(current)) {
+          if (!used[cell.id]) {
+            used[cell.id] = true;
+            related.push(cell);
+            queue.push(cell.id);
+          }
+        }
+      }
+    }
+    return related;
+  }
 }
