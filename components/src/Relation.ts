@@ -124,8 +124,8 @@ export class Relation {
   /** HTMLを生成する */
   private html(): string {
     let html = '';
-    let offsetY = -this.$view.offset()!.top + 14;
-    let height = Math.max(
+    const offsetY = -this.$view.offset()!.top + 14;
+    const height = Math.max(
       this.notebookLeft.$view.height() || 0,
       this.notebookRight.$view.height() || 0
     );
@@ -133,8 +133,8 @@ export class Relation {
     html += '<svg width="50" height="' + height + '">';
     for (const cellLeft of this.notebookLeft.cellList) {
       for (const cellRight of this.relatedRightCells[cellLeft.id]) {
-        let y0 = cellLeft.y + offsetY;
-        let y1 = cellRight.y + offsetY;
+        const y0 = cellLeft.y + offsetY;
+        const y1 = cellRight.y + offsetY;
         html +=
           '<path d="M 0,' + y0 + ' C 25,' + y0 + ' 25,' + y1 + ' 50,' + y1;
         html += '" fill="none" stroke="#eee" style="stroke-width:1.5px;" />';

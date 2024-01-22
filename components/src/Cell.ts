@@ -63,7 +63,7 @@ export class Cell {
       '<span class="open-button">+</span><span class="close-button">-</span>';
     html += '<span class="select-button">&nbsp;</span>';
     if (this.hasMeme) {
-      let memeTokens = this.meme.split('-');
+      const memeTokens = this.meme.split('-');
       html += '<b>' + memeTokens.shift() + '</b>-' + memeTokens.join('-');
     }
     html += '</div>';
@@ -80,7 +80,7 @@ export class Cell {
     if (!this.hasMeme || !leftCellsList.length) {
       this.$view.removeClass('changed1');
       this.$view.removeClass('changed2');
-    } else if (leftCellsList.length == 1) {
+    } else if (leftCellsList.length === 1) {
       if (this.checkChanged([this], leftCellsList[0])) {
         this.$view.addClass('changed1');
         this.$view.removeClass('changed2');
@@ -89,9 +89,9 @@ export class Cell {
         this.$view.removeClass('changed2');
       }
     } else {
-      let ch0 = this.checkChanged([this], leftCellsList[0]);
-      let ch1 = this.checkChanged([this], leftCellsList[1]);
-      let ch01 = this.checkChanged(leftCellsList[0], leftCellsList[1]);
+      const ch0 = this.checkChanged([this], leftCellsList[0]);
+      const ch1 = this.checkChanged([this], leftCellsList[1]);
+      const ch01 = this.checkChanged(leftCellsList[0], leftCellsList[1]);
       if (ch01) {
         if (!ch0) {
           this.$view.removeClass('changed1');
@@ -166,7 +166,7 @@ export class Cell {
   /** x座標を取得する */
   get x(): number {
     const offset = this.$view.offset();
-    if (offset == undefined) {
+    if (offset === undefined) {
       throw new Error('offset is undefined');
     }
     return offset.left;
@@ -175,7 +175,7 @@ export class Cell {
   /** y座標を取得する */
   get y(): number {
     const offset = this.$view.offset();
-    if (offset == undefined) {
+    if (offset === undefined) {
       throw new Error('offset is undefined');
     }
     return offset.top;
@@ -203,9 +203,9 @@ export class Cell {
 
   /** 選択を行う */
   public select(selected: boolean): void {
-    if (this.selected != selected) {
+    if (this.selected !== selected) {
       this.selected = selected;
-      let $selectButton = this.$view.find('.select-button');
+      const $selectButton = this.$view.find('.select-button');
       $selectButton.empty();
       if (this.selected) {
         $selectButton.prepend('&#x2714;');
@@ -217,9 +217,9 @@ export class Cell {
 
   /** マークする */
   public mark(marked: boolean): void {
-    if (this.marked != marked) {
+    if (this.marked !== marked) {
       this.marked = marked;
-      let $selectButton = this.$view.find('.select-button');
+      const $selectButton = this.$view.find('.select-button');
       if (this.marked) {
         $selectButton.addClass('marked');
       } else {
@@ -229,9 +229,9 @@ export class Cell {
   }
 
   private checkChanged(bases: Cell[], cells: Cell[]): boolean {
-    for (let base of bases) {
-      for (let target of cells) {
-        if (target.source.join('\n') != base.source.join('\n')) {
+    for (const base of bases) {
+      for (const target of cells) {
+        if (target.source.join('\n') !== base.source.join('\n')) {
           return true;
         }
       }

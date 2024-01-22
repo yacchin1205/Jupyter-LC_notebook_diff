@@ -104,18 +104,18 @@ export class DiffView {
     ) => void
   ): void {
     console.log('loadNext', this.loadingFilenames);
-    if (this.loadingFilenames.length == 0) {
+    if (this.loadingFilenames.length === 0) {
       // 描画
       this.render();
     } else {
       // ロード
-      let rawFilename = this.loadingFilenames.shift() as string;
-      if (this.loadingFilecontents.length == 0) {
-        let filename = encodeURI(rawFilename);
+      const rawFilename = this.loadingFilenames.shift() as string;
+      if (this.loadingFilecontents.length === 0) {
+        const filename = encodeURI(rawFilename);
         this.$.getJSON(filename, data => {
           this.notebooks.push(new Notebook(this.$, rawFilename, data));
           if (this.notebooks.length >= 2) {
-            let i = this.notebooks.length - 2;
+            const i = this.notebooks.length - 2;
             this.relations.push(
               new Relation(this.$, this.notebooks[i], this.notebooks[i + 1], {
                 matchType: this.matchType
@@ -127,10 +127,10 @@ export class DiffView {
           errorCallback(filename, jqXHR, textStatus, errorThrown);
         });
       } else {
-        var data = this.loadingFilecontents.shift();
+        const data = this.loadingFilecontents.shift();
         this.notebooks.push(new Notebook(this.$, rawFilename, data));
         if (this.notebooks.length >= 2) {
-          let i = this.notebooks.length - 2;
+          const i = this.notebooks.length - 2;
           this.relations.push(
             new Relation(this.$, this.notebooks[i], this.notebooks[i + 1], {
               matchType: this.matchType
@@ -145,7 +145,7 @@ export class DiffView {
   /** セルをハイライトする */
   private highlightCell(cellId: string | null): void {
     this.$container.find('.cell').removeClass('highlight');
-    if (cellId != null) {
+    if (cellId !== null) {
       this.$container.find(`.cell[data-id="${cellId}"]`).addClass('highlight');
       for (const cell of this.getRelatedCellsById(cellId)) {
         this.$container
@@ -157,26 +157,26 @@ export class DiffView {
 
   /** リレーションを更新する */
   private updateRelationsView(): void {
-    for (let relation of this.relations) {
+    for (const relation of this.relations) {
       relation.updateView();
     }
   }
 
   /** リレーションを計算する */
   private updateRelations(): void {
-    for (let relation of this.relations) {
+    for (const relation of this.relations) {
       relation.updateRelation();
     }
   }
 
   /** マージビューを表示する */
   private showMergeView(cellId: string | undefined): void {
-    if (cellId == undefined) {
+    if (cellId === undefined) {
       throw new Error('cellId is undefined');
     }
-    let mergeViewElem = this.$mergeView[0];
+    const mergeViewElem = this.$mergeView[0];
     let notebooks: Array<Notebook | null> = [];
-    if (this.notebooks.length == 2) {
+    if (this.notebooks.length === 2) {
       notebooks = [null, this.notebooks[0], this.notebooks[1]];
     } else {
       notebooks = this.notebooks;
@@ -190,7 +190,9 @@ export class DiffView {
       undefined
     ];
     for (let i = 0; i < 3; i++) {
-      if (!notebooks[i]) continue;
+      if (!notebooks[i]) {
+        continue;
+      }
       const notebook = notebooks[i] as Notebook;
       if (notebook === targetCell.notebook) {
         sources[i] = targetCell.sourceAll;
@@ -198,13 +200,16 @@ export class DiffView {
         const cell = relatedCells
           .filter(cell => notebook.cellList.indexOf(cell) !== -1)
           .shift();
-        if (!cell) continue;
+        if (!cell) {
+          continue;
+        }
         sources[i] = cell.sourceAll;
       }
     }
 
-    let self = this;
-    let options = {
+    /* eslint-disable-next-line @typescript-eslint/no-this-alias */
+    const self = this;
+    const options = {
       value: sources[1],
       origLeft: sources[0],
       origRight: sources[2],
@@ -221,7 +226,7 @@ export class DiffView {
     };
     this.$mergeView.show();
     this.$container.find('.dark').show();
-    let mv = this.codeMirror.MergeView(mergeViewElem, options);
+    const mv = this.codeMirror.MergeView(mergeViewElem, options);
     mv.edit.focus();
   }
 
@@ -235,9 +240,9 @@ export class DiffView {
   /** 選択中の揃えるべきY座標を求める */
   private maxCellY(): number {
     let y: number = 0;
-    for (let notebook of this.notebooks) {
-      let cell = notebook.selectedCell();
-      if (cell != null) {
+    for (const notebook of this.notebooks) {
+      const cell = notebook.selectedCell();
+      if (cell !== null) {
         y = Math.max(y, cell.y);
       }
     }
@@ -251,9 +256,9 @@ export class DiffView {
 
   /** 指定したセルを揃える */
   private alignCellY(y: number) {
-    for (let notebook of this.notebooks) {
-      let cell = notebook.selectedCell();
-      if (cell != null) {
+    for (const notebook of this.notebooks) {
+      const cell = notebook.selectedCell();
+      if (cell !== null) {
         cell.y = y;
       }
     }
@@ -270,9 +275,9 @@ export class DiffView {
     if (id === undefined) {
       return null;
     }
-    for (let notebook of this.notebooks) {
-      for (let cell of notebook.cellList) {
-        if (cell.id == id) {
+    for (const notebook of this.notebooks) {
+      for (const cell of notebook.cellList) {
+        if (cell.id === id) {
           return cell;
         }
       }
@@ -282,7 +287,7 @@ export class DiffView {
 
   /** セルを選択する */
   private select(cell: Cell): void {
-    for (let notebook of this.notebooks) {
+    for (const notebook of this.notebooks) {
       notebook.unselectAll();
       notebook.unmarkAll();
     }
@@ -300,12 +305,12 @@ export class DiffView {
     this.updateRelations();
 
     // HTMLを生成する
-    let $wrapper = this.$('<div class="wrapper"></div>');
+    const $wrapper = this.$('<div class="wrapper"></div>');
     this.$container.empty();
     this.$container.append($wrapper);
     for (let i = 0; i < this.notebooks.length; i++) {
       $wrapper.append(this.notebooks[i].$view);
-      if (i != this.notebooks.length - 1) {
+      if (i !== this.notebooks.length - 1) {
         $wrapper.append(this.relations[i].$view);
       }
     }
@@ -326,9 +331,9 @@ export class DiffView {
       return false;
     });
     this.$container.on('click', '.select-button', e => {
-      let $cell = this.$(e.target).parent().parent();
-      let cell = this.cellById($cell.attr('data-id'));
-      if (cell != null) {
+      const $cell = this.$(e.target).parent().parent();
+      const cell = this.cellById($cell.attr('data-id'));
+      if (cell !== null) {
         this.select(cell);
         this.alignSelected();
       }
@@ -347,7 +352,7 @@ export class DiffView {
       this.hideMergeView();
     });
 
-    if (this.notebooks.length == 2) {
+    if (this.notebooks.length === 2) {
       this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));
     } else {
       this.updateCellsStyle(this.notebooks[1], this.relations.slice(0, 1));

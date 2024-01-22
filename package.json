@@ -114,7 +114,10 @@
         "**/*.d.ts",
         "tests",
         "**/__tests__",
-        "ui-tests"
+        "ui-tests",
+        "components",
+        "nbextension",
+        "work"
     ],
     "eslintConfig": {
         "extends": [

@@ -30,8 +30,8 @@ export class Notebook {
     // memeからセルへの連想配列を初期化
     this.cellMap = {};
     for (let i = 0; i < this.cellList.length; i++) {
-      let meme = this.cellList[i].meme;
-      if (this.cellMap[meme] == undefined) {
+      const meme = this.cellList[i].meme;
+      if (this.cellMap[meme] === undefined) {
         this.cellMap[meme] = [];
       }
       this.cellMap[meme].push(this.cellList[i]);
@@ -61,8 +61,8 @@ export class Notebook {
 
   /** memeを指定してセルを取得する */
   getCellsByMeme(meme: string): Cell[] {
-    let cells = this.cellMap[meme];
-    return cells == undefined ? [] : cells;
+    const cells = this.cellMap[meme];
+    return cells === undefined ? [] : cells;
   }
 
   /** memeを指定してセルを取得する */
@@ -77,28 +77,28 @@ export class Notebook {
 
   /** セルを非選択にする */
   unselectAll(): void {
-    for (let cell of this.cellList) {
+    for (const cell of this.cellList) {
       cell.select(false);
     }
   }
 
   /** 選択中のセルのmemeを取得する */
   selectedMeme(): string | null {
-    let cell = this.selectedCell();
-    return cell == null ? null : cell.meme;
+    const cell = this.selectedCell();
+    return cell === null ? null : cell.meme;
   }
 
   /** memeを指定して最初のcellを選択する */
   selectByMeme(meme: string): void {
-    let cell = this.getCellByMeme(meme);
-    if (cell != null) {
+    const cell = this.getCellByMeme(meme);
+    if (cell !== null) {
       cell.select(true);
     }
   }
 
   /** 選択中のセルを取得する */
   selectedCell(): Cell | null {
-    for (let cell of this.cellList) {
+    for (const cell of this.cellList) {
       if (cell.selected) {
         return cell;
       }
@@ -108,8 +108,8 @@ export class Notebook {
 
   /** memeを指定してマークする */
   markByMeme(meme: string): void {
-    for (let cell of this.cellList) {
-      cell.mark(cell.meme == meme);
+    for (const cell of this.cellList) {
+      cell.mark(cell.meme === meme);
     }
   }
 
