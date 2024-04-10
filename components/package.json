@@ -1,0 +1,17 @@
+{
+  "name": "lc_notebook_diff_components",
+  "version": "0.1.0",
+  "description": "Components for lc_notebook_diff",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@types/jquery": "^3.5.29",
+    "typescript": "^5.3.3"
+  }
+}
