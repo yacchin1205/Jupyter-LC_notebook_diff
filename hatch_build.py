@@ -14,7 +14,7 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 def build_nbextension():
     # Execute the node build script
-    subprocess.check_call(['npm', 'run', 'build'], cwd=LIB)
+    subprocess.check_call(['jlpm', 'run', 'build'], cwd=LIB)
 
 class CustomHook(BuildHookInterface):
     """A custom build hook."""
@@ -24,4 +24,5 @@ class CustomHook(BuildHookInterface):
         """Initialize the hook."""
         if self.target_name not in ["wheel", "sdist"]:
             return
+        print("Building the nbextension...", self.target_name)
         build_nbextension()
